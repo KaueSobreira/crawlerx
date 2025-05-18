@@ -14,6 +14,7 @@ interface ApiDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (Api: Api) => void;
+  initialData?: Partial<Api> | null;
 }
 
 function validateJSON(jsonString: string) {
@@ -26,7 +27,12 @@ function validateJSON(jsonString: string) {
   }
 }
 
-const ApiDialog: React.FC<ApiDialogProps> = ({ open, onClose, onSubmit }) => {
+const ApiDialog: React.FC<ApiDialogProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  initialData,
+}) => {
   const [form, setForm] = useState({
     nome: "",
     url: "",
@@ -39,19 +45,19 @@ const ApiDialog: React.FC<ApiDialogProps> = ({ open, onClose, onSubmit }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
       setForm({
-        nome: "",
-        url: "",
-        metodo: "",
-        headers: "{}",
-        body: "{}",
-        parametros: "{}",
-        tipoRetorno: "",
+        nome: initialData?.nome || "",
+        url: initialData?.url || "",
+        metodo: initialData?.metodo || "",
+        headers: JSON.stringify(initialData?.headers || {}, null, 2),
+        body: JSON.stringify(initialData?.body || {}, null, 2),
+        parametros: JSON.stringify(initialData?.parametros || {}, null, 2),
+        tipoRetorno: initialData?.tipoRetorno || "",
       });
       setError(null);
     }
-  }, [open]);
+  }, [open, initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -91,7 +97,7 @@ const ApiDialog: React.FC<ApiDialogProps> = ({ open, onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-auto">
-        <h2 className="text-xl font-semibold mb-4">Adicionar Api</h2>
+        <h2 className="text-xl font-semibold mb-4 text-black">Adicionar Api</h2>
 
         {error && (
           <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">
@@ -99,7 +105,7 @@ const ApiDialog: React.FC<ApiDialogProps> = ({ open, onClose, onSubmit }) => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-2 text-black">
           <p className="p-0 text-sm">Nome API:</p>
           <input
             name="nome"

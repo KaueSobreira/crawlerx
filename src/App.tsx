@@ -7,7 +7,7 @@ function App() {
   return (
     <Router>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-black">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/api" element={<Api />} />

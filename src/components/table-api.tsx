@@ -10,18 +10,24 @@ import { Button } from "./ui/button.tsx";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { buscarApis } from "../controller/apiControler.ts";
-function ListaApis() {
-  interface ApiData {
-    id: number;
-    nome: string;
-    url: string;
-    metodo: string;
-    headers: Record<string, string> | null;
-    body: Record<string, unknown> | null;
-    parametros: Record<string, string> | null;
-    tipoRetorno: string;
-  }
+export interface ApiData {
+  id: number;
+  nome: string;
+  url: string;
+  metodo: string;
+  headers: Record<string, string> | null;
+  body: Record<string, unknown> | null;
+  parametros: Record<string, string> | null;
+  tipoRetorno: string;
+}
 
+function ListaApis({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: (api: ApiData) => void;
+  onDelete: (id: number) => void;
+}) {
   const [api, setApi] = useState<ApiData[]>([]);
 
   useEffect(() => {
@@ -70,10 +76,16 @@ function ListaApis() {
               {api.tipoRetorno}
             </TableCell>
             <TableCell className="flex gap-2">
-              <Button className="hover:bg-amber-100 hover:text-black">
+              <Button
+                className="hover:bg-amber-100 hover:text-black"
+                onClick={() => onEdit(api)}
+              >
                 <Pencil />
               </Button>
-              <Button className="hover:bg-red-600">
+              <Button
+                className="hover:bg-red-600"
+                onClick={() => onDelete(api.id)}
+              >
                 <Trash />
               </Button>
             </TableCell>

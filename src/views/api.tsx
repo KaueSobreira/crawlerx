@@ -1,12 +1,10 @@
 import { useState } from "react";
-import ListaApis from "@/components/table-api";
+import ListaApis, { type ApiData } from "@/components/table-api";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUpIcon } from "lucide-react";
 import ScriptDialog from "@/controller/apiDialog"; // importe correto aqui
 
 const API = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-
   const handleAddApi = async (api: {
     nome: string;
     url: string;
@@ -16,9 +14,16 @@ const API = () => {
     parametros: Record<string, string> | null;
     tipoRetorno: string;
   }) => {
+    const isEditing = !!editingApi;
+    const endpoint = isEditing
+      ? `http://localhost:3000/editar-api/${editingApi.id}`
+      : "http://localhost:3000/cadastrar-api";
+
+    const method = isEditing ? "PUT" : "POST";
+
     try {
-      const response = await fetch("http://localhost:3000/cadastrar-api", {
-        method: "POST",
+      const response = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(api),
       });
@@ -30,14 +35,37 @@ const API = () => {
       const result = await response.json();
       console.log("API salva com sucesso:", result);
 
-      // Aqui você pode atualizar a tabela após salvar a nova API
+      setEditingApi(null);
+
+      setDialogOpen(false);
     } catch (error) {
       console.error("Erro ao salvar API:", error);
     }
   };
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const [editingApi, setEditingApi] = useState<Partial<ApiData> | null>(null);
+
+  const handleEditApi = (api: Partial<ApiData> | null) => {
+    setEditingApi(api);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteApi = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:3000/deletar-api/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Erro ao deletar API");
+      console.log("API deletada com sucesso");
+    } catch (error) {
+      console.error("Erro ao deletar API:", error);
+    }
+  };
+
   return (
-    <div>
+    <div className="min-h-screen bg-black text-white">
       <div className="bg-black text-white p-4 flex w-full justify-between items-center">
         <h1 className="text-2xl font-bold">APIs</h1>
         <Button
@@ -50,13 +78,17 @@ const API = () => {
       </div>
 
       <div>
-        <ListaApis />
+        <ListaApis onEdit={handleEditApi} onDelete={handleDeleteApi} />
       </div>
 
       <ScriptDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false);
+          setEditingApi(null);
+        }}
         onSubmit={handleAddApi}
+        initialData={editingApi}
       />
     </div>
   );
