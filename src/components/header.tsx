@@ -13,7 +13,10 @@ const Header = () => {
         <NavigationMenuList className="flex space-x-4">
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link to="/" className="text-xl text-white hover:text-red-600">
+              <Link
+                to="/"
+                className="text-xl text-white hover:text-emerald-300 focus:text-emerald-600"
+              >
                 Home
               </Link>
             </NavigationMenuLink>
@@ -22,7 +25,7 @@ const Header = () => {
             <NavigationMenuLink asChild>
               <Link
                 to="/script"
-                className="text-xl text-white hover:text-red-600"
+                className="text-xl text-white hover:text-emerald-300 focus:text-emerald-600"
               >
                 Script
               </Link>
@@ -30,7 +33,10 @@ const Header = () => {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link to="/api" className="text-xl text-white hover:text-red-600">
+              <Link
+                to="/api"
+                className="text-xl text-white hover:text-emerald-300 focus:text-emerald-600"
+              >
                 API
               </Link>
             </NavigationMenuLink>
