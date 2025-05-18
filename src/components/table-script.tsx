@@ -8,10 +8,23 @@ import {
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
 import { Pencil, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const ScriptTable = () => {
+function ListaApis() {
+  const [api, setApi] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/testar-dados-apis")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Dados recebidos:", data);
+        setApi(data);
+      })
+      .catch((err) => console.error("Erro ao buscar usuários:", err));
+  }, []);
+
   return (
-    <Table className="bg-black text-white rounded-sm">
+    <Table className="bg-black text-white">
       <TableHeader>
         <TableRow>
           <TableHead>ID</TableHead>
@@ -20,30 +33,50 @@ const ScriptTable = () => {
           <TableHead>Método</TableHead>
           <TableHead>Headers</TableHead>
           <TableHead>Body</TableHead>
-          <TableHead>Parametros</TableHead>
+          <TableHead>Parâmetros</TableHead>
           <TableHead>Tipo de Retorno</TableHead>
+          <TableHead>Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow>
-          <TableCell>1</TableCell>
-          <TableCell>Via Cep</TableCell>
-          <TableCell>www.wsviaCep.com.br</TableCell>
-          <TableCell>POST</TableCell>
-          <TableCell>Exemplo</TableCell>
-          <TableCell>Context/aplication</TableCell>
-          <TableCell>Exemplo</TableCell>
-          <TableCell>JSON</TableCell>
-          <Button>
-            <Pencil />
-          </Button>
-          <Button>
-            <Trash className="hover:text-red-400" />
-          </Button>
-        </TableRow>
+        {api.map((api) => (
+          <TableRow
+            className="max-w-xs truncate whitespace-nowrap overflow-hidden"
+            key={api.id}
+          >
+            <TableCell>{api.id}</TableCell>
+            <TableCell>{api.nome}</TableCell>
+            <TableCell>{api.url}</TableCell>
+            <TableCell>{api.metodo}</TableCell>
+            <TableCell className="trucante">
+              <pre className="whitespace-pre-wrap">
+                {JSON.stringify(api.headers, null, 2)}
+              </pre>
+            </TableCell>
+            <TableCell>
+              <pre className="whitespace-pre-wrap">
+                {JSON.stringify(api.body, null, 2)}
+              </pre>
+            </TableCell>
+            <TableCell>
+              <pre className="whitespace-pre-wrap">
+                {JSON.stringify(api.parametros, null, 2)}
+              </pre>
+            </TableCell>
+            <TableCell>{api.tipoRetorno}</TableCell>
+            <TableCell className="flex gap-2">
+              <Button className="hover:bg-amber-100 hover:text-black">
+                <Pencil />
+              </Button>
+              <Button className="hover:bg-red-600">
+                <Trash />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
   );
-};
+}
 
-export default ScriptTable;
+export default ListaApis;

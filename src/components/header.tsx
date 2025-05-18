@@ -5,21 +5,15 @@ import {
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 const Header = () => {
   return (
-    <div className="p-0 flex items-center justify-center">
+    <div className="p-0 flex items-center justify-center bg-black ">
       <NavigationMenu>
         <NavigationMenuList className="flex space-x-4">
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link
-                to="/"
-                className={cn(
-                  "text-sm font-medium text-zinc-800 dark:text-white hover:underline"
-                )}
-              >
+              <Link to="/" className="text-xl text-white hover:text-red-600">
                 Home
               </Link>
             </NavigationMenuLink>
@@ -28,9 +22,7 @@ const Header = () => {
             <NavigationMenuLink asChild>
               <Link
                 to="/script"
-                className={cn(
-                  "text-sm font-medium text-zinc-800 dark:text-white hover:underline"
-                )}
+                className="text-xl text-white hover:text-red-600"
               >
                 Script
               </Link>
@@ -38,12 +30,7 @@ const Header = () => {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link
-                to="/api"
-                className={cn(
-                  "text-sm font-medium text-zinc-800 dark:text-white hover:underline"
-                )}
-              >
+              <Link to="/api" className="text-xl text-white hover:text-red-600">
                 API
               </Link>
             </NavigationMenuLink>
