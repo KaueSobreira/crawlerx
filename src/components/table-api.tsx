@@ -6,20 +6,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "./ui/button";
+import { Button } from "./ui/button.tsx";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import { buscarApis } from "../controller/apiControler.ts";
 function ListaApis() {
-  const [api, setApi] = useState([]);
+  interface ApiData {
+    id: number;
+    nome: string;
+    url: string;
+    metodo: string;
+    headers: Record<string, string> | null;
+    body: Record<string, unknown> | null;
+    parametros: Record<string, string> | null;
+    tipoRetorno: string;
+  }
+
+  const [api, setApi] = useState<ApiData[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/testar-dados-apis")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Dados recebidos:", data);
-        setApi(data);
-      })
+    buscarApis()
+      .then((data: ApiData[]) => setApi(data))
       .catch((err) => console.error("Erro ao buscar usuários:", err));
   }, []);
 
@@ -48,21 +55,11 @@ function ListaApis() {
             <TableCell>{api.nome}</TableCell>
             <TableCell>{api.url}</TableCell>
             <TableCell>{api.metodo}</TableCell>
-            <TableCell className="trucante">
-              <pre className="whitespace-pre-wrap">
-                {JSON.stringify(api.headers, null, 2)}
-              </pre>
+            <TableCell className="truncate">
+              {JSON.stringify(api.headers, null, 2)}
             </TableCell>
-            <TableCell>
-              <pre className="whitespace-pre-wrap">
-                {JSON.stringify(api.body, null, 2)}
-              </pre>
-            </TableCell>
-            <TableCell>
-              <pre className="whitespace-pre-wrap">
-                {JSON.stringify(api.parametros, null, 2)}
-              </pre>
-            </TableCell>
+            <TableCell>{JSON.stringify(api.body, null, 2)}</TableCell>
+            <TableCell>{JSON.stringify(api.parametros, null, 2)}</TableCell>
             <TableCell>{api.tipoRetorno}</TableCell>
             <TableCell className="flex gap-2">
               <Button className="hover:bg-amber-100 hover:text-black">

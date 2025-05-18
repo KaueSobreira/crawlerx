@@ -1,4 +1,4 @@
-import ScriptTable from "@/components/table-script";
+import ListaApis from "@/components/table-api";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUpIcon } from "lucide-react";
 
@@ -13,7 +13,7 @@ const Script = () => {
         </Button>
       </div>
       <div>
-        <ScriptTable />
+        <ListaApis />
       </div>
     </div>
   );
