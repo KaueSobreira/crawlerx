@@ -48,7 +48,7 @@ function ListaApis() {
       <TableBody>
         {api.map((api) => (
           <TableRow
-            className="max-w-xs truncate whitespace-nowrap overflow-hidden"
+            className="truncate whitespace-nowrap overflow-hidden"
             key={api.id}
           >
             <TableCell>{api.id}</TableCell>
