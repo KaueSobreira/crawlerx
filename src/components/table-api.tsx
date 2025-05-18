@@ -53,14 +53,22 @@ function ListaApis() {
           >
             <TableCell>{api.id}</TableCell>
             <TableCell>{api.nome}</TableCell>
-            <TableCell>{api.url}</TableCell>
-            <TableCell>{api.metodo}</TableCell>
-            <TableCell className="truncate">
+            <TableCell className="max-w-[20ch] truncate">{api.url}</TableCell>
+            <TableCell className="max-w-[20ch] truncate">
+              {api.metodo}
+            </TableCell>
+            <TableCell className="max-w-[20ch] truncate">
               {JSON.stringify(api.headers, null, 2)}
             </TableCell>
-            <TableCell>{JSON.stringify(api.body, null, 2)}</TableCell>
-            <TableCell>{JSON.stringify(api.parametros, null, 2)}</TableCell>
-            <TableCell>{api.tipoRetorno}</TableCell>
+            <TableCell className="max-w-[20ch] truncate">
+              {JSON.stringify(api.body, null, 2)}
+            </TableCell>
+            <TableCell className="max-w-[20ch] truncate">
+              {JSON.stringify(api.parametros, null, 2)}
+            </TableCell>
+            <TableCell className="max-w-[20ch] truncate">
+              {api.tipoRetorno}
+            </TableCell>
             <TableCell className="flex gap-2">
               <Button className="hover:bg-amber-100 hover:text-black">
                 <Pencil />

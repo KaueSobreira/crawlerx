@@ -17,11 +17,9 @@ const API = () => {
     tipoRetorno: string;
   }) => {
     try {
-      const response = await fetch("http://localhost:3000/rotas-apis", {
+      const response = await fetch("http://localhost:3000/cadastrar-api", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(api),
       });
 
