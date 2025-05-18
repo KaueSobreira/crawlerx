@@ -16,8 +16,8 @@ const API = () => {
   }) => {
     const isEditing = !!editingApi;
     const endpoint = isEditing
-      ? `http://localhost:3000/editar-api/${editingApi.id}`
-      : "http://localhost:3000/cadastrar-api";
+      ? `http://127.0.0.1:8000/v1/api/${editingApi.id}`
+      : "http://127.0.0.1:8000/v1/api";
 
     const method = isEditing ? "PUT" : "POST";
 
@@ -54,7 +54,7 @@ const API = () => {
 
   const handleDeleteApi = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/deletar-api/${id}`, {
+      const response = await fetch(`http://127.0.0.1:8000/v1/api/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Erro ao deletar API");

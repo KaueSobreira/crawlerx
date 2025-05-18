@@ -20,7 +20,7 @@ const Home = () => {
       </div>
       <div className="flex flex-col gap-2">
         <Textarea className="bg-white min-w-100 min-h-100" />
-        <Progress className="bg-white p-3 rounded-3xl" value={progress} />
+        <Progress className="bg-white p-3 rounded-3xl" value={22} />
       </div>
     </div>
   );

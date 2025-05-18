@@ -33,7 +33,7 @@ function ListaApis({
   useEffect(() => {
     buscarApis()
       .then((data: ApiData[]) => setApi(data))
-      .catch((err) => console.error("Erro ao buscar usuários:", err));
+      .catch((err) => console.error("Erro ao buscar APIs:", err));
   }, []);
 
   return (
