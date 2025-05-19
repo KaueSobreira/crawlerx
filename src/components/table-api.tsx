@@ -9,7 +9,7 @@ import {
 import { Button } from "./ui/button.tsx";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import { buscarApis } from "../controller/apiControler.ts";
+import { buscarApis } from "@/service/ApiService.ts";
 
 export interface ApiData {
   id: number;

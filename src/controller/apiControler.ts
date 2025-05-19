@@ -1,8 +1,33 @@
-export async function buscarApis() {
-  const response = await fetch("http://127.0.0.1:8000/v1/api");
-  if (!response.ok) {
-    throw new Error("Erro ao buscar APIs");
-  }
-  const data = await response.json();
-  return data;
-}
+import type { Api, ApiData } from "@/model/api";
+import {
+  saveApi,
+  deleteApi,
+  buscarApis as buscarApisService,
+} from "@/service/ApiService";
+
+export const ApiController = () => {
+  const handleSave = async (
+    api: Api,
+    editingApi: Partial<ApiData> | null
+  ): Promise<ApiData> => {
+    const result = await saveApi({
+      ...api,
+      ...(editingApi?.id ? { id: editingApi.id } : {}),
+    });
+    return result;
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteApi(id);
+  };
+
+  const buscarApis = async (): Promise<ApiData[]> => {
+    return await buscarApisService();
+  };
+
+  return {
+    handleSave,
+    handleDelete,
+    buscarApis,
+  };
+};
