@@ -22,6 +22,7 @@ const API = () => {
     const method = isEditing ? "PUT" : "POST";
 
     const payload = {
+      ...(isEditing && editingApi?.id ? { id: editingApi.id } : {}),
       name: api.name,
       url: api.url,
       method: api.method,
