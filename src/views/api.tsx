@@ -6,13 +6,13 @@ import ScriptDialog from "@/controller/apiDialog"; // importe correto aqui
 
 const API = () => {
   const handleAddApi = async (api: {
-    nome: string;
+    name: string;
     url: string;
-    metodo: string;
+    method: string;
     headers: Record<string, string> | null;
     body: Record<string, unknown> | null;
-    parametros: Record<string, string> | null;
-    tipoRetorno: string;
+    params: Record<string, string> | null;
+    return_type: string;
   }) => {
     const isEditing = !!editingApi;
     const endpoint = isEditing
@@ -21,14 +21,28 @@ const API = () => {
 
     const method = isEditing ? "PUT" : "POST";
 
+    const payload = {
+      name: api.name,
+      url: api.url,
+      method: api.method,
+      headers: api.headers ?? {},
+      params: api.params ?? {},
+      body: api.body ? JSON.stringify(api.body) : null, // 🚨 body tem que ser string
+      return_type: api.return_type,
+    };
+
+    console.log("Payload enviado:", payload);
+
     try {
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(api),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
+        const errorText = await response.text(); // 👈 importante para debug
+        console.error("Erro do backend:", errorText);
         throw new Error("Erro ao salvar API");
       }
 
@@ -36,7 +50,6 @@ const API = () => {
       console.log("API salva com sucesso:", result);
 
       setEditingApi(null);
-
       setDialogOpen(false);
     } catch (error) {
       console.error("Erro ao salvar API:", error);

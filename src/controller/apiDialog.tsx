@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 interface Api {
-  nome: string;
+  name: string;
   url: string;
-  metodo: string;
+  method: string;
   headers: Record<string, string> | null;
   body: Record<string, unknown> | null;
-  parametros: Record<string, string> | null;
-  tipoRetorno: string;
+  params: Record<string, string> | null;
+  return_type: string;
 }
 
 interface ApiDialogProps {
@@ -34,27 +34,29 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
   initialData,
 }) => {
   const [form, setForm] = useState({
-    nome: "",
+    name: "",
     url: "",
-    metodo: "",
+    method: "",
     headers: "{}",
     body: "{}",
-    parametros: "{}",
-    tipoRetorno: "",
+    params: "{}",
+    return_type: "",
   });
+
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setForm({
-        nome: initialData?.nome || "",
+        name: initialData?.name || "",
         url: initialData?.url || "",
-        metodo: initialData?.metodo || "",
+        method: initialData?.method || "",
         headers: JSON.stringify(initialData?.headers || {}, null, 2),
         body: JSON.stringify(initialData?.body || {}, null, 2),
-        parametros: JSON.stringify(initialData?.parametros || {}, null, 2),
-        tipoRetorno: initialData?.tipoRetorno || "",
+        params: JSON.stringify(initialData?.params || {}, null, 2),
+        return_type: initialData?.return_type || "",
       });
+
       setError(null);
     }
   }, [open, initialData]);
@@ -72,23 +74,23 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
     if (
       !validateJSON(form.headers) ||
       !validateJSON(form.body) ||
-      !validateJSON(form.parametros)
+      !validateJSON(form.params)
     ) {
       setError("Headers, Body ou Parâmetros não são JSON válidos.");
       return;
     }
 
-    const Api: Api = {
-      nome: form.nome,
+    const api: Api = {
+      name: form.name,
       url: form.url,
-      metodo: form.metodo,
+      method: form.method,
       headers: form.headers ? JSON.parse(form.headers) : null,
       body: form.body ? JSON.parse(form.body) : null,
-      parametros: form.parametros ? JSON.parse(form.parametros) : null,
-      tipoRetorno: form.tipoRetorno,
+      params: form.params ? JSON.parse(form.params) : null,
+      return_type: form.return_type,
     };
 
-    onSubmit(Api);
+    onSubmit(api);
     onClose();
   };
 
@@ -108,10 +110,10 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
         <form onSubmit={handleSubmit} className="space-y-2 text-black">
           <p className="p-0 text-sm">Nome API:</p>
           <input
-            name="nome"
+            name="name"
             required
             placeholder="Nome"
-            value={form.nome}
+            value={form.name}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
@@ -126,10 +128,10 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
           />
           <p className="p-0 text-sm">Metodo:</p>
           <input
-            name="metodo"
+            name="method"
             required
             placeholder="Método (GET, POST...)"
-            value={form.metodo}
+            value={form.method}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
@@ -151,18 +153,18 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
           />
           <p className="p-0 text-sm">Parâmetros:</p>
           <textarea
-            name="parametros"
+            name="params"
             placeholder="Parâmetros (JSON)"
-            value={form.parametros}
+            value={form.params}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
           <p className="p-0 text-sm">Tipo Retorno:</p>
           <input
-            name="tipoRetorno"
+            name="return_type"
             required
             placeholder="Tipo Retorno"
-            value={form.tipoRetorno}
+            value={form.return_type}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
