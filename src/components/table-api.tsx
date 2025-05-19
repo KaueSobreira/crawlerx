@@ -10,15 +10,16 @@ import { Button } from "./ui/button.tsx";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { buscarApis } from "../controller/apiControler.ts";
+
 export interface ApiData {
   id: number;
-  nome: string;
+  name: string;
   url: string;
-  metodo: string;
+  method: string;
   headers: Record<string, string> | null;
   body: Record<string, unknown> | null;
-  parametros: Record<string, string> | null;
-  tipoRetorno: string;
+  params: Record<string, string> | null;
+  return_type: string;
 }
 
 function ListaApis({
@@ -58,10 +59,10 @@ function ListaApis({
             key={api.id}
           >
             <TableCell>{api.id}</TableCell>
-            <TableCell>{api.nome}</TableCell>
+            <TableCell>{api.name}</TableCell>
             <TableCell className="max-w-[20ch] truncate">{api.url}</TableCell>
             <TableCell className="max-w-[20ch] truncate">
-              {api.metodo}
+              {api.method}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
               {JSON.stringify(api.headers, null, 2)}
@@ -70,10 +71,10 @@ function ListaApis({
               {JSON.stringify(api.body, null, 2)}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
-              {JSON.stringify(api.parametros, null, 2)}
+              {JSON.stringify(api.params, null, 2)}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
-              {api.tipoRetorno}
+              {api.return_type}
             </TableCell>
             <TableCell className="flex gap-2">
               <Button

@@ -2,7 +2,7 @@ import { useState } from "react";
 import ListaApis, { type ApiData } from "@/components/table-api";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUpIcon } from "lucide-react";
-import ScriptDialog from "@/controller/apiDialog"; // importe correto aqui
+import ScriptDialog from "@/controller/apiDialog";
 
 const API = () => {
   const handleAddApi = async (api: {
@@ -21,13 +21,16 @@ const API = () => {
 
     const method = isEditing ? "PUT" : "POST";
 
+    // ✅ Ajustando o payload para coincidir com ApiJsonData
     const payload = {
+      // Incluir ID apenas no PUT
+      ...(isEditing && editingApi?.id && { id: editingApi.id }),
       name: api.name,
       url: api.url,
       method: api.method,
-      headers: api.headers ?? {},
-      params: api.params ?? {},
-      body: api.body ? JSON.stringify(api.body) : null, // 🚨 body tem que ser string
+      headers: api.headers || {}, // Garantir que nunca seja null
+      params: api.params || {}, // Garantir que nunca seja null
+      body: api.body ? JSON.stringify(api.body) : null, // Manter como string ou null
       return_type: api.return_type,
     };
 
@@ -41,9 +44,12 @@ const API = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // 👈 importante para debug
-        console.error("Erro do backend:", errorText);
-        throw new Error("Erro ao salvar API");
+        const errorData = await response.json().catch(() => null);
+        const errorMessage =
+          errorData?.detail ||
+          `HTTP ${response.status}: ${response.statusText}`;
+        console.error("Erro do backend:", errorMessage);
+        throw new Error(`Erro ao salvar API: ${errorMessage}`);
       }
 
       const result = await response.json();
@@ -51,13 +57,17 @@ const API = () => {
 
       setEditingApi(null);
       setDialogOpen(false);
+
+      // ✅ Opcional: Você pode adicionar um callback para atualizar a lista
+      // window.location.reload(); // Força reload da página para atualizar a lista
     } catch (error) {
       console.error("Erro ao salvar API:", error);
+      // ✅ Opcional: Mostrar erro para o usuário
+      alert(`Erro ao salvar API: ${error.message}`);
     }
   };
 
   const [dialogOpen, setDialogOpen] = useState(false);
-
   const [editingApi, setEditingApi] = useState<Partial<ApiData> | null>(null);
 
   const handleEditApi = (api: Partial<ApiData> | null) => {
@@ -70,11 +80,27 @@ const API = () => {
       const response = await fetch(`http://127.0.0.1:8000/v1/api/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok) throw new Error("Erro ao deletar API");
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage =
+          errorData?.detail ||
+          `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(`Erro ao deletar API: ${errorMessage}`);
+      }
+
       console.log("API deletada com sucesso");
+      // ✅ Opcional: Atualizar a lista após deletar
+      // window.location.reload();
     } catch (error) {
       console.error("Erro ao deletar API:", error);
+      alert(`Erro ao deletar API: ${error.message}`);
     }
+  };
+
+  const handleOpenDialog = () => {
+    setEditingApi(null); // Limpar dados de edição
+    setDialogOpen(true);
   };
 
   return (
@@ -83,7 +109,7 @@ const API = () => {
         <h1 className="text-2xl font-bold">APIs</h1>
         <Button
           className="rounded-full bg-emerald-400 hover:bg-emerald-700 flex items-center gap-2"
-          onClick={() => setDialogOpen(true)}
+          onClick={handleOpenDialog}
         >
           <ArrowDownUpIcon />
           Adicionar API
