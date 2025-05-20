@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDownUpIcon } from "lucide-react";
+import { ArrowDownUpIcon, SearchIcon } from "lucide-react";
 import { ApiController, useApiListController } from "@/controller/apiControler";
 import ApiDialog from "@/views/apiDialog";
 import ListaApis from "@/views/table-api";
 import type { ApiData } from "@/model/api";
+import { Input } from "@/components/ui/input";
 
 const API = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingApi, setEditingApi] = useState<Partial<ApiData> | null>(null);
   const { handleSave, handleDelete } = ApiController();
-
-  const { apiList } = useApiListController();
+  const { apiList, handleSearch } = useApiListController();
+  const [searchInput, setSearchInput] = useState("");
 
   const handleAddApi = async (api: any) => {
     try {
@@ -20,6 +21,20 @@ const API = () => {
       setEditingApi(null);
     } catch (error) {
       console.error("Erro ao salvar API:", error);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  };
+
+  const handleSearchClick = () => {
+    handleSearch(searchInput);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearchClick();
     }
   };
 
@@ -34,6 +49,23 @@ const API = () => {
           <ArrowDownUpIcon />
           Adicionar API
         </Button>
+      </div>
+      <div className="flex items-center gap-2 pl-4 mb-4">
+        <Input
+          placeholder="Pesquise por ID ou Nome..."
+          className="max-w-xs text-white"
+          value={searchInput}
+          onChange={handleSearchChange}
+          onKeyPress={handleKeyPress}
+        />
+        <button
+          type="button"
+          className="p-2 bg-emerald-500 rounded-full hover:bg-emerald-600 transition-colors"
+          aria-label="Buscar"
+          onClick={handleSearchClick}
+        >
+          <SearchIcon className="w-5 h-5 text-white" />
+        </button>
       </div>
 
       <ListaApis

@@ -10,14 +10,39 @@ import { buscarApis } from "@/service/ApiService";
 
 export function useApiListController() {
   const [apiList, setApiList] = useState<ApiData[]>([]);
+  const [filteredApiList, setFilteredApiList] = useState<ApiData[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     buscarApis()
-      .then((data) => setApiList(data))
+      .then((data) => {
+        setApiList(data);
+        setFilteredApiList(data);
+      })
       .catch((err) => console.error("Erro ao buscar APIs:", err));
   }, []);
 
-  return { apiList };
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredApiList(apiList);
+      return;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase();
+    const filtered = apiList.filter(
+      (api) =>
+        api.id.toString().includes(searchTermLower) ||
+        api.name.toLowerCase().includes(searchTermLower)
+    );
+
+    setFilteredApiList(filtered);
+  }, [searchTerm, apiList]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  return { apiList: filteredApiList, searchTerm, handleSearch };
 }
 
 export function handleApiFormSubmit(
