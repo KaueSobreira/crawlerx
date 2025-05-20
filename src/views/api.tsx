@@ -11,7 +11,7 @@ const API = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingApi, setEditingApi] = useState<Partial<ApiData> | null>(null);
   const { handleSave, handleDelete } = ApiController();
-  const { apiList, handleSearch } = useApiListController();
+  const { apiList, handleSearch, refreshList } = useApiListController();
   const [searchInput, setSearchInput] = useState("");
 
   const handleAddApi = async (api: any) => {
@@ -19,8 +19,18 @@ const API = () => {
       await handleSave(api, editingApi);
       setDialogOpen(false);
       setEditingApi(null);
+      refreshList();
     } catch (error) {
       console.error("Erro ao salvar API:", error);
+    }
+  };
+
+  const handleDeleteApi = async (id: number) => {
+    try {
+      await handleDelete(id);
+      refreshList();
+    } catch (error) {
+      console.error("Erro ao excluir API:", error);
     }
   };
 
@@ -74,7 +84,7 @@ const API = () => {
           setEditingApi(api);
           setDialogOpen(true);
         }}
-        onDelete={handleDelete}
+        onDelete={handleDeleteApi}
       />
 
       <ApiDialog

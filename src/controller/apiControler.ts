@@ -5,13 +5,18 @@ import {
   buscarApis as buscarApisService,
 } from "@/service/ApiService";
 import { validateJSON } from "@/utils/validadateJson";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { buscarApis } from "@/service/ApiService";
 
 export function useApiListController() {
   const [apiList, setApiList] = useState<ApiData[]>([]);
   const [filteredApiList, setFilteredApiList] = useState<ApiData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+
+  const refreshList = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     buscarApis()
@@ -20,7 +25,7 @@ export function useApiListController() {
         setFilteredApiList(data);
       })
       .catch((err) => console.error("Erro ao buscar APIs:", err));
-  }, []);
+  }, [refreshTrigger]);
 
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -42,7 +47,7 @@ export function useApiListController() {
     setSearchTerm(term);
   };
 
-  return { apiList: filteredApiList, searchTerm, handleSearch };
+  return { apiList: filteredApiList, searchTerm, handleSearch, refreshList };
 }
 
 export function handleApiFormSubmit(
