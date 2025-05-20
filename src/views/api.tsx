@@ -1,14 +1,17 @@
 import { useState } from "react";
-import ListaApis, { type ApiData } from "@/components/table-api";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUpIcon } from "lucide-react";
-import { ApiController } from "@/controller/apiControler";
+import { ApiController, useApiListController } from "@/controller/apiControler";
 import ApiDialog from "@/views/apiDialog";
+import ListaApis from "@/views/table-api";
+import type { ApiData } from "@/model/api";
 
 const API = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingApi, setEditingApi] = useState<Partial<ApiData> | null>(null);
   const { handleSave, handleDelete } = ApiController();
+
+  const { apiList } = useApiListController();
 
   const handleAddApi = async (api: any) => {
     try {
@@ -34,6 +37,7 @@ const API = () => {
       </div>
 
       <ListaApis
+        data={apiList}
         onEdit={(api) => {
           setEditingApi(api);
           setDialogOpen(true);

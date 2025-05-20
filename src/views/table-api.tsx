@@ -1,3 +1,4 @@
+// views/ListaApis.tsx
 import {
   Table,
   TableBody,
@@ -6,37 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "./ui/button.tsx";
+import { Button } from "../components/ui/button";
 import { Pencil, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
-import { buscarApis } from "@/service/ApiService.ts";
+import type { ApiData } from "@/model/api";
 
-export interface ApiData {
-  id: number;
-  name: string;
-  url: string;
-  method: string;
-  headers: Record<string, string> | null;
-  body: Record<string, unknown> | null;
-  params: Record<string, string> | null;
-  return_type: string;
-}
-
-function ListaApis({
-  onEdit,
-  onDelete,
-}: {
+interface Props {
+  data: ApiData[];
   onEdit: (api: ApiData) => void;
   onDelete: (id: number) => void;
-}) {
-  const [api, setApi] = useState<ApiData[]>([]);
+}
 
-  useEffect(() => {
-    buscarApis()
-      .then((data: ApiData[]) => setApi(data))
-      .catch((err) => console.error("Erro ao buscar APIs:", err));
-  }, []);
-
+function ListaApis({ data, onEdit, onDelete }: Props) {
   return (
     <Table className="bg-black text-white">
       <TableHeader>
@@ -53,10 +34,10 @@ function ListaApis({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {api.map((api) => (
+        {data.map((api) => (
           <TableRow
-            className="truncate whitespace-nowrap overflow-hidden"
             key={api.id}
+            className="truncate whitespace-nowrap overflow-hidden"
           >
             <TableCell>{api.id}</TableCell>
             <TableCell>{api.name}</TableCell>
@@ -65,13 +46,13 @@ function ListaApis({
               {api.method}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
-              {JSON.stringify(api.headers, null, 2)}
+              {JSON.stringify(api.headers)}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
-              {JSON.stringify(api.body, null, 2)}
+              {JSON.stringify(api.body)}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
-              {JSON.stringify(api.params, null, 2)}
+              {JSON.stringify(api.params)}
             </TableCell>
             <TableCell className="max-w-[20ch] truncate">
               {api.return_type}

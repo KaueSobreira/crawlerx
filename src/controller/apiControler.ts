@@ -5,6 +5,20 @@ import {
   buscarApis as buscarApisService,
 } from "@/service/ApiService";
 import { validateJSON } from "@/utils/validadateJson";
+import { useEffect, useState } from "react";
+import { buscarApis } from "@/service/ApiService";
+
+export function useApiListController() {
+  const [apiList, setApiList] = useState<ApiData[]>([]);
+
+  useEffect(() => {
+    buscarApis()
+      .then((data) => setApiList(data))
+      .catch((err) => console.error("Erro ao buscar APIs:", err));
+  }, []);
+
+  return { apiList };
+}
 
 export function handleApiFormSubmit(
   form: any,
