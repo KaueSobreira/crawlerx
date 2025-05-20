@@ -1,4 +1,3 @@
-// views/ApiDialog.tsx
 import React, { useState, useEffect } from "react";
 import type { ApiDialogProps } from "@/model/api";
 import { handleApiFormSubmit } from "../controller/apiControler";
