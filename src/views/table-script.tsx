@@ -7,13 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useScriptListController } from "@/controller/scriptControler";
 import type { ScriptData } from "@/model/script";
 import { Pencil, Trash } from "lucide-react";
 
-const TableScript = () => {
-  const { scriptList } = useScriptListController();
+interface Props {
+  data: ScriptData[];
+  onEdit: (script: ScriptData) => void;
+  onDelete: (id: number) => void;
+}
 
+const TableScript = ({ data, onEdit, onDelete }: Props) => {
   return (
     <div className="w-full min-h-screen p-4 bg-black text-white">
       <Table className="w-full h-full table-auto">
@@ -27,8 +30,8 @@ const TableScript = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {scriptList.length > 0 ? (
-            scriptList.map((script: ScriptData) => (
+          {data.length > 0 ? (
+            data.map((script: ScriptData) => (
               <TableRow
                 key={script.id}
                 className="truncate whitespace-nowrap overflow-hidden"
@@ -46,10 +49,16 @@ const TableScript = () => {
                   {script.return_type}
                 </TableCell>
                 <TableCell className="flex gap-2">
-                  <Button className="hover:bg-amber-100 hover:text-black">
+                  <Button
+                    className="hover:bg-amber-100 hover:text-black"
+                    onClick={() => onEdit(script)}
+                  >
                     <Pencil />
                   </Button>
-                  <Button className="hover:bg-red-600">
+                  <Button
+                    className="hover:bg-red-600"
+                    onClick={() => onDelete(script.id)}
+                  >
                     <Trash />
                   </Button>
                 </TableCell>

@@ -7,3 +7,10 @@ export interface Script {
 export interface ScriptData extends Script {
   id: number;
 }
+
+export interface ScriptDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (script: Script) => void;
+  initialData?: Partial<ScriptData> | null;
+}
