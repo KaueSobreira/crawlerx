@@ -9,14 +9,41 @@ import { useEffect, useState } from "react";
 
 export function useScriptListController() {
   const [scriptList, setScriptList] = useState<ScriptData[]>([]);
+  const [filteredScriptList, setFilteredScriptList] = useState<ScriptData[]>(
+    []
+  );
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     buscarScripts()
-      .then((data) => setScriptList(data))
+      .then((data) => {
+        setScriptList(data);
+        setFilteredScriptList(data);
+      })
       .catch((err) => console.error("Erro ao buscar Scripts:", err));
   }, []);
 
-  return { scriptList };
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredScriptList(scriptList);
+      return;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase();
+    const filtered = scriptList.filter(
+      (script) =>
+        script.id.toString().includes(searchTermLower) ||
+        script.name.toLowerCase().includes(searchTermLower)
+    );
+
+    setFilteredScriptList(filtered);
+  }, [searchTerm, scriptList]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  return { scriptList: filteredScriptList, searchTerm, handleSearch };
 }
 
 export function handleScriptFormSubmit(
