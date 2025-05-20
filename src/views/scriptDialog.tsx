@@ -15,19 +15,11 @@ const ScriptDialog = () => {
             className="w-full border rounded px-3 py-2"
           />
 
-          <label className="text-sm">URL:</label>
-          <input
-            name="url"
-            required
-            maxLength={255}
-            className="w-full border rounded px-3 py-2"
-          />
-
-          <label className="text-sm">Path:</label>
+          <label className="text-sm">Arquivo (Path):</label>
           <input
             name="path"
+            type="file"
             required
-            maxLength={255}
             className="w-full border rounded px-3 py-2"
           />
 
