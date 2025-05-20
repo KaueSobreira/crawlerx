@@ -4,6 +4,36 @@ import {
   deleteApi,
   buscarApis as buscarApisService,
 } from "@/service/ApiService";
+import { validateJSON } from "@/utils/validadateJson";
+
+export function handleApiFormSubmit(
+  form: any,
+  onSubmit: (api: Api) => void,
+  onClose: () => void,
+  setError: (msg: string | null) => void
+) {
+  if (
+    !validateJSON(form.headers) ||
+    !validateJSON(form.body) ||
+    !validateJSON(form.params)
+  ) {
+    setError("Headers, Body ou Parâmetros não são JSON válidos.");
+    return;
+  }
+
+  const api: Api = {
+    name: form.name,
+    url: form.url,
+    method: form.method,
+    headers: form.headers ? JSON.parse(form.headers) : null,
+    body: form.body ? JSON.parse(form.body) : null,
+    params: form.params ? JSON.parse(form.params) : null,
+    return_type: form.return_type,
+  };
+
+  onSubmit(api);
+  onClose();
+}
 
 export const ApiController = () => {
   const handleSave = async (

@@ -11,3 +11,10 @@ export interface Api {
 export interface ApiData extends Api {
   id: number;
 }
+
+export interface ApiDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (Api: Api) => void;
+  initialData?: Partial<Api> | null;
+}

@@ -1,31 +1,7 @@
+// views/ApiDialog.tsx
 import React, { useState, useEffect } from "react";
-
-interface Api {
-  name: string;
-  url: string;
-  method: string;
-  headers: Record<string, string> | null;
-  body: Record<string, unknown> | null;
-  params: Record<string, string> | null;
-  return_type: string;
-}
-
-interface ApiDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (Api: Api) => void;
-  initialData?: Partial<Api> | null;
-}
-
-function validateJSON(jsonString: string) {
-  if (!jsonString) return true;
-  try {
-    JSON.parse(jsonString);
-    return true;
-  } catch {
-    return false;
-  }
-}
+import type { ApiDialogProps } from "@/model/api";
+import { handleApiFormSubmit } from "../controller/apiControler";
 
 const ApiDialog: React.FC<ApiDialogProps> = ({
   open,
@@ -56,7 +32,6 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
         params: JSON.stringify(initialData?.params || {}, null, 2),
         return_type: initialData?.return_type || "",
       });
-
       setError(null);
     }
   }, [open, initialData]);
@@ -70,28 +45,7 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (
-      !validateJSON(form.headers) ||
-      !validateJSON(form.body) ||
-      !validateJSON(form.params)
-    ) {
-      setError("Headers, Body ou Parâmetros não são JSON válidos.");
-      return;
-    }
-
-    const api: Api = {
-      name: form.name,
-      url: form.url,
-      method: form.method,
-      headers: form.headers ? JSON.parse(form.headers) : null,
-      body: form.body ? JSON.parse(form.body) : null,
-      params: form.params ? JSON.parse(form.params) : null,
-      return_type: form.return_type,
-    };
-
-    onSubmit(api);
-    onClose();
+    handleApiFormSubmit(form, onSubmit, onClose, setError);
   };
 
   if (!open) return null;
@@ -108,7 +62,7 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-2 text-black">
-          <p className="p-0 text-sm">Nome API:</p>
+          <label className="text-sm">Nome API:</label>
           <input
             name="name"
             required
@@ -117,7 +71,8 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
-          <p className="p-0 text-sm">URL:</p>
+
+          <label className="text-sm">URL:</label>
           <input
             name="url"
             required
@@ -126,7 +81,8 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
-          <p className="p-0 text-sm">Metodo:</p>
+
+          <label className="text-sm">Método:</label>
           <input
             name="method"
             required
@@ -135,7 +91,8 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
-          <p className="p-0 text-sm">Headers:</p>
+
+          <label className="text-sm">Headers:</label>
           <textarea
             name="headers"
             placeholder="Headers (JSON)"
@@ -143,7 +100,8 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
-          <p className="p-0 text-sm">Body:</p>
+
+          <label className="text-sm">Body:</label>
           <textarea
             name="body"
             placeholder="Body (JSON)"
@@ -151,7 +109,8 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
-          <p className="p-0 text-sm">Parâmetros:</p>
+
+          <label className="text-sm">Parâmetros:</label>
           <textarea
             name="params"
             placeholder="Parâmetros (JSON)"
@@ -159,7 +118,8 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
-          <p className="p-0 text-sm">Tipo Retorno:</p>
+
+          <label className="text-sm">Tipo Retorno:</label>
           <input
             name="return_type"
             required
@@ -179,7 +139,7 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-300 "
+              className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-300"
             >
               Salvar
             </button>

@@ -3,7 +3,7 @@ import ListaApis, { type ApiData } from "@/components/table-api";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUpIcon } from "lucide-react";
 import { ApiController } from "@/controller/apiControler";
-import ApiDialog from "@/controller/apiDialog";
+import ApiDialog from "@/views/apiDialog";
 
 const API = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
