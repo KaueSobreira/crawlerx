@@ -121,7 +121,7 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
               {...(!initialData?.id ? { required: true } : {})}
             />
             {initialData?.id && (
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs font-bold text-gray-600 mt-1">
                 Deixe vazio para manter o arquivo atual
               </p>
             )}

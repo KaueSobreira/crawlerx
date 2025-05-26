@@ -44,11 +44,6 @@ const Script = () => {
     try {
       setError(null);
 
-      const confirmed = window.confirm(
-        "Tem certeza que deseja deletar este script?"
-      );
-      if (!confirmed) return;
-
       await handleDelete(id);
 
       await reloadScripts();
@@ -104,6 +99,7 @@ const Script = () => {
         </Button>
       </div>
 
+      {/* Apenas mensagem de erro */}
       {error && (
         <div className="mx-4 mb-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded">
           {error}
