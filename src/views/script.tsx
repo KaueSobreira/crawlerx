@@ -15,33 +15,21 @@ const Script = () => {
   const [editingScript, setEditingScript] =
     useState<Partial<ScriptData> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const { handleSave, handleDelete } = ScriptController();
-  const { scriptList, handleSearch, loading, reloadScripts } =
-    useScriptListController();
+  const { scriptList, handleSearch, reloadScripts } = useScriptListController();
   const [searchInput, setSearchInput] = useState("");
 
   const handleAddScript = async (scriptData: any, file: File | null) => {
     try {
       setError(null);
-      setSuccess(null);
 
       await handleSave(scriptData, file, editingScript);
 
-      setSuccess(
-        editingScript
-          ? "Script atualizado com sucesso!"
-          : "Script adicionado com sucesso!"
-      );
       setDialogOpen(false);
       setEditingScript(null);
 
-      // Recarrega a lista de scripts
       await reloadScripts();
-
-      // Remove a mensagem de sucesso após 3 segundos
-      setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error("Erro ao salvar Script:", error);
       setError(
@@ -55,7 +43,6 @@ const Script = () => {
   const handleDeleteScript = async (id: number) => {
     try {
       setError(null);
-      setSuccess(null);
 
       const confirmed = window.confirm(
         "Tem certeza que deseja deletar este script?"
@@ -63,13 +50,8 @@ const Script = () => {
       if (!confirmed) return;
 
       await handleDelete(id);
-      setSuccess("Script deletado com sucesso!");
 
-      // Recarrega a lista de scripts
       await reloadScripts();
-
-      // Remove a mensagem de sucesso após 3 segundos
-      setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error("Erro ao deletar Script:", error);
       setError(
@@ -107,25 +89,12 @@ const Script = () => {
         </Button>
       </div>
 
-      {/* Mensagens de erro e sucesso */}
       {error && (
         <div className="mx-4 mb-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded">
           {error}
           <button
             onClick={() => setError(null)}
             className="float-right text-red-300 hover:text-red-100"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      {success && (
-        <div className="mx-4 mb-4 p-3 bg-green-900 border border-green-700 text-green-100 rounded">
-          {success}
-          <button
-            onClick={() => setSuccess(null)}
-            className="float-right text-green-300 hover:text-green-100"
           >
             ×
           </button>
@@ -150,20 +119,14 @@ const Script = () => {
         </button>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="text-white">Carregando scripts...</div>
-        </div>
-      ) : (
-        <TableScript
-          data={scriptList}
-          onEdit={(script) => {
-            setEditingScript(script);
-            setDialogOpen(true);
-          }}
-          onDelete={handleDeleteScript}
-        />
-      )}
+      <TableScript
+        data={scriptList}
+        onEdit={(script) => {
+          setEditingScript(script);
+          setDialogOpen(true);
+        }}
+        onDelete={handleDeleteScript}
+      />
 
       <ScriptDialog
         open={dialogOpen}

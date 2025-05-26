@@ -71,13 +71,11 @@ export const ScriptController = () => {
     const isEditing = !!editingScript?.id;
 
     try {
-      // 1. Primeiro salva/atualiza os dados do script
       const savedScript = await saveScript({
         ...script,
         ...(editingScript?.id ? { id: editingScript.id } : {}),
       });
 
-      // 2. Se há arquivo, faz o upload
       if (file) {
         const scriptId = savedScript.id || editingScript?.id;
         if (!scriptId) {
@@ -85,10 +83,8 @@ export const ScriptController = () => {
         }
 
         if (isEditing) {
-          // Para edição, usa PUT para atualizar o arquivo
           await updateScriptFile(scriptId, file);
         } else {
-          // Para novo script, usa POST para criar o arquivo
           await uploadScriptFile(scriptId, file);
         }
       }

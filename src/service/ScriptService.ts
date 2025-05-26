@@ -12,8 +12,8 @@ export async function saveScript(
   const payload = {
     ...(isEditing && script.id ? { id: script.id } : {}),
     name: script.name,
-    url: "", // Campo obrigatório no backend, mesmo que vazio
-    path: "", // Será definido quando o arquivo for enviado
+    url: "",
+    path: "",
     return_type: script.return_type,
   };
 

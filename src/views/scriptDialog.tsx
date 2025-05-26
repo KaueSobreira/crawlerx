@@ -37,7 +37,6 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Validar extensão .py
       if (!selectedFile.name.endsWith(".py")) {
         setError("Apenas arquivos .py são permitidos");
         return;
@@ -53,7 +52,6 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Validações
       if (!form.name.trim()) {
         throw new Error("Nome é obrigatório");
       }
@@ -61,18 +59,15 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
         throw new Error("Tipo de retorno é obrigatório");
       }
 
-      // Para novos scripts, arquivo é obrigatório
       if (!initialData?.id && !file) {
         throw new Error("Arquivo Python é obrigatório para novos scripts");
       }
 
-      // Preparar dados do script
       const scriptData = {
         ...form,
         ...(initialData?.id ? { id: initialData.id } : {}),
       };
 
-      // Chamar onSubmit que irá lidar com a criação/edição
       await onSubmit(scriptData, file);
 
       onClose();
