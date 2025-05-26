@@ -5,6 +5,7 @@ import {
   buscarScripts as buscarScriptsService,
   uploadScriptFile,
   updateScriptFile,
+  downloadScriptFile,
 } from "@/service/ScriptService";
 import { useEffect, useState } from "react";
 
@@ -14,18 +15,14 @@ export function useScriptListController() {
     []
   );
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [loading, setLoading] = useState(true);
 
   const loadScripts = async () => {
     try {
-      setLoading(true);
       const data = await buscarScriptsService();
       setScriptList(data);
       setFilteredScriptList(data);
     } catch (err) {
       console.error("Erro ao buscar Scripts:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -57,7 +54,6 @@ export function useScriptListController() {
     scriptList: filteredScriptList,
     searchTerm,
     handleSearch,
-    loading,
     reloadScripts: loadScripts,
   };
 }
@@ -105,6 +101,19 @@ export const ScriptController = () => {
     }
   };
 
+  const handleDownload = async (script: ScriptData) => {
+    try {
+      if (!script.path || script.path.trim() === "") {
+        throw new Error("Este script não possui arquivo para download");
+      }
+
+      await downloadScriptFile(script.id, script.name);
+    } catch (error) {
+      console.error("Erro ao baixar arquivo:", error);
+      throw error;
+    }
+  };
+
   const buscarScripts = async (): Promise<ScriptData[]> => {
     return await buscarScriptsService();
   };
@@ -112,6 +121,7 @@ export const ScriptController = () => {
   return {
     handleSave,
     handleDelete,
+    handleDownload,
     buscarScripts,
   };
 };

@@ -16,7 +16,7 @@ const Script = () => {
     useState<Partial<ScriptData> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { handleSave, handleDelete } = ScriptController();
+  const { handleSave, handleDelete, handleDownload } = ScriptController();
   const { scriptList, handleSearch, reloadScripts } = useScriptListController();
   const [searchInput, setSearchInput] = useState("");
 
@@ -58,6 +58,21 @@ const Script = () => {
         error instanceof Error
           ? error.message
           : "Erro desconhecido ao deletar script"
+      );
+    }
+  };
+
+  const handleDownloadScript = async (script: ScriptData) => {
+    try {
+      setError(null);
+
+      await handleDownload(script);
+    } catch (error) {
+      console.error("Erro ao baixar arquivo:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao baixar arquivo"
       );
     }
   };
@@ -126,6 +141,7 @@ const Script = () => {
           setDialogOpen(true);
         }}
         onDelete={handleDeleteScript}
+        onDownload={handleDownloadScript}
       />
 
       <ScriptDialog

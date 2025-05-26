@@ -8,15 +8,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { ScriptData } from "@/model/script";
-import { Pencil, Trash } from "lucide-react";
+import { Download, Pencil, Trash } from "lucide-react";
 
 interface Props {
   data: ScriptData[];
   onEdit: (script: ScriptData) => void;
   onDelete: (id: number) => void;
+  onDownload: (script: ScriptData) => void;
 }
 
-const TableScript = ({ data, onEdit, onDelete }: Props) => {
+const TableScript = ({ data, onEdit, onDelete, onDownload }: Props) => {
   return (
     <div className="w-full min-h-screen p-4 bg-black text-white">
       <Table className="w-full h-full table-auto">
@@ -43,7 +44,7 @@ const TableScript = ({ data, onEdit, onDelete }: Props) => {
                   {script.name}
                 </TableCell>
                 <TableCell className="max-w-[20ch] truncate min-w-[50ch]">
-                  {script.path}
+                  {script.path || "Sem arquivo"}
                 </TableCell>
                 <TableCell className="max-w-[20ch] truncate">
                   {script.return_type}
@@ -52,14 +53,28 @@ const TableScript = ({ data, onEdit, onDelete }: Props) => {
                   <Button
                     className="hover:bg-amber-100 hover:text-black"
                     onClick={() => onEdit(script)}
+                    title="Editar script"
                   >
                     <Pencil />
                   </Button>
                   <Button
                     className="hover:bg-red-600"
                     onClick={() => onDelete(script.id)}
+                    title="Deletar script"
                   >
                     <Trash />
+                  </Button>
+                  <Button
+                    className="hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => onDownload(script)}
+                    disabled={!script.path || script.path.trim() === ""}
+                    title={
+                      script.path && script.path.trim() !== ""
+                        ? "Baixar arquivo"
+                        : "Sem arquivo para download"
+                    }
+                  >
+                    <Download />
                   </Button>
                 </TableCell>
               </TableRow>

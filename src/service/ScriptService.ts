@@ -12,8 +12,8 @@ export async function saveScript(
   const payload = {
     ...(isEditing && script.id ? { id: script.id } : {}),
     name: script.name,
-    url: "",
-    path: "",
+    url: script.url || "",
+    path: script.path || "",
     return_type: script.return_type,
   };
 
@@ -24,11 +24,17 @@ export async function saveScript(
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Erro ao salvar script");
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.detail || "Erro ao salvar script");
+    } catch {
+      throw new Error(errorText || "Erro ao salvar script");
+    }
   }
 
-  return await response.json();
+  const result = await response.json();
+  return result;
 }
 
 export async function uploadScriptFile(
@@ -44,8 +50,13 @@ export async function uploadScriptFile(
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Erro ao fazer upload do arquivo");
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.detail || "Erro ao fazer upload do arquivo");
+    } catch {
+      throw new Error(errorText || "Erro ao fazer upload do arquivo");
+    }
   }
 }
 
@@ -62,24 +73,72 @@ export async function updateScriptFile(
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Erro ao atualizar arquivo");
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.detail || "Erro ao atualizar arquivo");
+    } catch {
+      throw new Error(errorText || "Erro ao atualizar arquivo");
+    }
   }
+}
+
+export async function downloadScriptFile(
+  scriptId: number,
+  scriptName: string
+): Promise<void> {
+  const response = await fetch(`${baseUrl}/file/${scriptId}`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.detail || "Erro ao baixar arquivo");
+    } catch {
+      throw new Error(errorText || "Erro ao baixar arquivo");
+    }
+  }
+
+  const blob = await response.blob();
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  link.download = `${scriptName}.py`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  window.URL.revokeObjectURL(url);
 }
 
 export async function deleteScript(id: number): Promise<void> {
   const response = await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Erro ao deletar Script");
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.detail || "Erro ao deletar Script");
+    } catch {
+      throw new Error(errorText || "Erro ao deletar Script");
+    }
   }
 }
 
 export async function buscarScripts(): Promise<ScriptData[]> {
-  const response = await fetch("http://127.0.0.1:8000/v1/script");
+  const response = await fetch(baseUrl);
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Erro ao buscar Scripts");
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.detail || "Erro ao buscar Scripts");
+    } catch {
+      throw new Error(errorText || "Erro ao buscar Scripts");
+    }
   }
   return await response.json();
 }
