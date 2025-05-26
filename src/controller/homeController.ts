@@ -15,6 +15,7 @@ export function useHomeController() {
   const [crawlerProgress, setCrawlerProgress] = useState<CrawlerProgress>({
     message: "Pronto para iniciar",
     status: "idle",
+    progress: 0, // Inicializar sempre com 0
   });
   const [wsInfo, setWsInfo] = useState<any>(null);
 
@@ -66,34 +67,64 @@ export function useHomeController() {
 
       wsServiceRef.current = new CrawlerWebSocketService(
         (data) => {
+          console.log("Dados recebidos do WebSocket:", data); // Debug
+
+          // Se for uma string simples
           if (typeof data === "string") {
             setCrawlerProgress((prev) => ({
               ...prev,
               message: data,
               status: "running",
+              // Manter o progresso anterior se não vier novo
             }));
-          } else if (data.progress !== undefined) {
-            setCrawlerProgress((prev) => ({
-              ...prev,
-              message: data.message || prev.message,
-              progress: data.progress,
-              status: "running",
-            }));
+          }
+          // Se for um objeto com dados estruturados
+          else if (typeof data === "object" && data !== null) {
+            setCrawlerProgress((prev) => {
+              const newProgress = { ...prev };
+
+              // Atualizar mensagem se presente
+              if (data.message) {
+                newProgress.message = data.message;
+              }
+
+              // Atualizar progresso se presente
+              if (data.progress !== undefined && data.progress !== null) {
+                newProgress.progress = Math.min(
+                  100,
+                  Math.max(0, Number(data.progress))
+                );
+              }
+
+              // Atualizar status se presente
+              if (data.status) {
+                newProgress.status = data.status;
+              } else {
+                newProgress.status = "running";
+              }
+
+              console.log("Atualizando progresso:", newProgress); // Debug
+              return newProgress;
+            });
           }
         },
         (error) => {
+          console.error("Erro WebSocket:", error);
           setCrawlerProgress({
             message: "Erro na conexão WebSocket",
             status: "error",
+            progress: 0,
           });
           setError("Erro na conexão com o servidor");
         },
         () => {
+          console.log("WebSocket fechado");
           setCrawlerProgress((prev) => ({
             ...prev,
             message:
               prev.status === "error" ? prev.message : "Crawler finalizado",
             status: prev.status === "error" ? "error" : "completed",
+            progress: prev.status === "error" ? prev.progress : 100,
           }));
         }
       );
@@ -104,6 +135,7 @@ export function useHomeController() {
       setCrawlerProgress({
         message: "Erro ao iniciar crawler",
         status: "error",
+        progress: 0,
       });
     }
   };
