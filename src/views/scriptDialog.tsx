@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import type { ScriptDialogProps } from "@/model/script";
-import { handleScriptFormSubmit } from "../controller/scriptControler";
 
 const ScriptDialog: React.FC<ScriptDialogProps> = ({
   open,
@@ -10,19 +9,20 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
 }) => {
   const [form, setForm] = useState({
     name: "",
-    path: "",
     return_type: "",
   });
 
+  const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
       setForm({
         name: initialData?.name || "",
-        path: initialData?.path || "",
         return_type: initialData?.return_type || "",
       });
+      setFile(null);
       setError(null);
     }
   }, [open, initialData]);
@@ -34,9 +34,53 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      // Validar extensão .py
+      if (!selectedFile.name.endsWith(".py")) {
+        setError("Apenas arquivos .py são permitidos");
+        return;
+      }
+      setFile(selectedFile);
+      setError(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    handleScriptFormSubmit(form, onSubmit, onClose, setError);
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Validações
+      if (!form.name.trim()) {
+        throw new Error("Nome é obrigatório");
+      }
+      if (!form.return_type.trim()) {
+        throw new Error("Tipo de retorno é obrigatório");
+      }
+
+      // Para novos scripts, arquivo é obrigatório
+      if (!initialData?.id && !file) {
+        throw new Error("Arquivo Python é obrigatório para novos scripts");
+      }
+
+      // Preparar dados do script
+      const scriptData = {
+        ...form,
+        ...(initialData?.id ? { id: initialData.id } : {}),
+      };
+
+      // Chamar onSubmit que irá lidar com a criação/edição
+      await onSubmit(scriptData, file);
+
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!open) return null;
@@ -54,53 +98,71 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-2 text-black">
-          <label className="text-sm">Nome:</label>
-          <input
-            name="name"
-            required
-            maxLength={255}
-            placeholder="Nome do script"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          />
+        <form onSubmit={handleSubmit} className="space-y-4 text-black">
+          <div>
+            <label className="block text-sm font-medium mb-1">Nome:</label>
+            <input
+              name="name"
+              required
+              maxLength={255}
+              placeholder="Nome do script"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+              disabled={isSubmitting}
+            />
+          </div>
 
-          <label className="text-sm">Arquivo (Path):</label>
-          <input
-            name="path"
-            type="file"
-            required
-            placeholder="Caminho do arquivo"
-            value={form.path}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Arquivo Python (.py):
+            </label>
+            <input
+              type="file"
+              accept=".py"
+              onChange={handleFileChange}
+              className="w-full border rounded px-3 py-2"
+              disabled={isSubmitting}
+              {...(!initialData?.id ? { required: true } : {})}
+            />
+            {initialData?.id && (
+              <p className="text-xs text-gray-600 mt-1">
+                Deixe vazio para manter o arquivo atual
+              </p>
+            )}
+          </div>
 
-          <label className="text-sm">Tipo de Retorno:</label>
-          <input
-            name="return_type"
-            required
-            maxLength={10}
-            placeholder="Tipo de retorno"
-            value={form.return_type}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Tipo de Retorno:
+            </label>
+            <input
+              name="return_type"
+              required
+              maxLength={10}
+              placeholder="Ex: json, txt, csv"
+              value={form.return_type}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+              disabled={isSubmitting}
+            />
+          </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-red-500 hover:text-white"
+              className="px-4 py-2 border rounded hover:bg-red-500 hover:text-white transition-colors"
+              disabled={isSubmitting}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-300"
+              className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors disabled:opacity-50"
+              disabled={isSubmitting}
             >
-              Salvar
+              {isSubmitting ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </form>

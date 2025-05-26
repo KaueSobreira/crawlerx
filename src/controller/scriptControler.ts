@@ -3,7 +3,8 @@ import {
   saveScript,
   deleteScript,
   buscarScripts as buscarScriptsService,
-  buscarScripts,
+  uploadScriptFile,
+  updateScriptFile,
 } from "@/service/ScriptService";
 import { useEffect, useState } from "react";
 
@@ -13,14 +14,23 @@ export function useScriptListController() {
     []
   );
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+  const loadScripts = async () => {
+    try {
+      setLoading(true);
+      const data = await buscarScriptsService();
+      setScriptList(data);
+      setFilteredScriptList(data);
+    } catch (err) {
+      console.error("Erro ao buscar Scripts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    buscarScripts()
-      .then((data) => {
-        setScriptList(data);
-        setFilteredScriptList(data);
-      })
-      .catch((err) => console.error("Erro ao buscar Scripts:", err));
+    loadScripts();
   }, []);
 
   useEffect(() => {
@@ -43,39 +53,60 @@ export function useScriptListController() {
     setSearchTerm(term);
   };
 
-  return { scriptList: filteredScriptList, searchTerm, handleSearch };
-}
-
-export function handleScriptFormSubmit(
-  form: any,
-  onSubmit: (script: Script) => void,
-  onClose: () => void,
-  _setError: (msg: string | null) => void
-) {
-  const script: Script = {
-    name: form.name,
-    path: form.path,
-    return_type: form.return_type,
+  return {
+    scriptList: filteredScriptList,
+    searchTerm,
+    handleSearch,
+    loading,
+    reloadScripts: loadScripts,
   };
-
-  onSubmit(script);
-  onClose();
 }
 
 export const ScriptController = () => {
   const handleSave = async (
     script: Script,
+    file: File | null,
     editingScript: Partial<ScriptData> | null
   ): Promise<ScriptData> => {
-    const result = await saveScript({
-      ...script,
-      ...(editingScript?.id ? { id: editingScript.id } : {}),
-    });
-    return result;
+    const isEditing = !!editingScript?.id;
+
+    try {
+      // 1. Primeiro salva/atualiza os dados do script
+      const savedScript = await saveScript({
+        ...script,
+        ...(editingScript?.id ? { id: editingScript.id } : {}),
+      });
+
+      // 2. Se há arquivo, faz o upload
+      if (file) {
+        const scriptId = savedScript.id || editingScript?.id;
+        if (!scriptId) {
+          throw new Error("ID do script não encontrado");
+        }
+
+        if (isEditing) {
+          // Para edição, usa PUT para atualizar o arquivo
+          await updateScriptFile(scriptId, file);
+        } else {
+          // Para novo script, usa POST para criar o arquivo
+          await uploadScriptFile(scriptId, file);
+        }
+      }
+
+      return savedScript;
+    } catch (error) {
+      console.error("Erro ao salvar script:", error);
+      throw error;
+    }
   };
 
   const handleDelete = async (id: number) => {
-    await deleteScript(id);
+    try {
+      await deleteScript(id);
+    } catch (error) {
+      console.error("Erro ao deletar script:", error);
+      throw error;
+    }
   };
 
   const buscarScripts = async (): Promise<ScriptData[]> => {

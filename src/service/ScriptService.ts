@@ -12,7 +12,8 @@ export async function saveScript(
   const payload = {
     ...(isEditing && script.id ? { id: script.id } : {}),
     name: script.name,
-    path: script.path,
+    url: "", // Campo obrigatório no backend, mesmo que vazio
+    path: "", // Será definido quando o arquivo for enviado
     return_type: script.return_type,
   };
 
@@ -23,19 +24,62 @@ export async function saveScript(
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Erro ao salvar script");
   }
 
   return await response.json();
 }
 
+export async function uploadScriptFile(
+  scriptId: number,
+  file: File
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${baseUrl}/file/${scriptId}`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Erro ao fazer upload do arquivo");
+  }
+}
+
+export async function updateScriptFile(
+  scriptId: number,
+  file: File
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${baseUrl}/file/${scriptId}`, {
+    method: "PUT",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Erro ao atualizar arquivo");
+  }
+}
+
 export async function deleteScript(id: number): Promise<void> {
   const response = await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
-  if (!response.ok) throw new Error("Erro ao deletar Script");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Erro ao deletar Script");
+  }
 }
 
 export async function buscarScripts(): Promise<ScriptData[]> {
   const response = await fetch("http://127.0.0.1:8000/v1/script");
-  if (!response.ok) throw new Error("Erro ao buscar Scripts");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Erro ao buscar Scripts");
+  }
   return await response.json();
 }

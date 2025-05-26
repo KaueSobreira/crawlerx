@@ -14,17 +14,69 @@ const Script = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingScript, setEditingScript] =
     useState<Partial<ScriptData> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   const { handleSave, handleDelete } = ScriptController();
-  const { scriptList, handleSearch } = useScriptListController();
+  const { scriptList, handleSearch, loading, reloadScripts } =
+    useScriptListController();
   const [searchInput, setSearchInput] = useState("");
 
-  const handleAddScript = async (script: any) => {
+  const handleAddScript = async (scriptData: any, file: File | null) => {
     try {
-      await handleSave(script, editingScript);
+      setError(null);
+      setSuccess(null);
+
+      await handleSave(scriptData, file, editingScript);
+
+      setSuccess(
+        editingScript
+          ? "Script atualizado com sucesso!"
+          : "Script adicionado com sucesso!"
+      );
       setDialogOpen(false);
       setEditingScript(null);
+
+      // Recarrega a lista de scripts
+      await reloadScripts();
+
+      // Remove a mensagem de sucesso após 3 segundos
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error("Erro ao salvar Script:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao salvar script"
+      );
+    }
+  };
+
+  const handleDeleteScript = async (id: number) => {
+    try {
+      setError(null);
+      setSuccess(null);
+
+      const confirmed = window.confirm(
+        "Tem certeza que deseja deletar este script?"
+      );
+      if (!confirmed) return;
+
+      await handleDelete(id);
+      setSuccess("Script deletado com sucesso!");
+
+      // Recarrega a lista de scripts
+      await reloadScripts();
+
+      // Remove a mensagem de sucesso após 3 segundos
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error) {
+      console.error("Erro ao deletar Script:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao deletar script"
+      );
     }
   };
 
@@ -54,6 +106,32 @@ const Script = () => {
           Adicionar Script
         </Button>
       </div>
+
+      {/* Mensagens de erro e sucesso */}
+      {error && (
+        <div className="mx-4 mb-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded">
+          {error}
+          <button
+            onClick={() => setError(null)}
+            className="float-right text-red-300 hover:text-red-100"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {success && (
+        <div className="mx-4 mb-4 p-3 bg-green-900 border border-green-700 text-green-100 rounded">
+          {success}
+          <button
+            onClick={() => setSuccess(null)}
+            className="float-right text-green-300 hover:text-green-100"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 pl-4 mb-4">
         <Input
           placeholder="Pesquise por ID ou Nome..."
@@ -72,20 +150,27 @@ const Script = () => {
         </button>
       </div>
 
-      <TableScript
-        data={scriptList}
-        onEdit={(script) => {
-          setEditingScript(script);
-          setDialogOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-white">Carregando scripts...</div>
+        </div>
+      ) : (
+        <TableScript
+          data={scriptList}
+          onEdit={(script) => {
+            setEditingScript(script);
+            setDialogOpen(true);
+          }}
+          onDelete={handleDeleteScript}
+        />
+      )}
 
       <ScriptDialog
         open={dialogOpen}
         onClose={() => {
           setDialogOpen(false);
           setEditingScript(null);
+          setError(null);
         }}
         onSubmit={handleAddScript}
         initialData={editingScript}
