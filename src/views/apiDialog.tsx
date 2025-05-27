@@ -36,7 +36,9 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
   }, [open, initialData]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -82,14 +84,18 @@ const ApiDialog: React.FC<ApiDialogProps> = ({
           />
 
           <label className="text-sm">Método:</label>
-          <input
+          <select
             name="method"
             required
-            placeholder="Método (GET, POST...)"
             value={form.method}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
-          />
+          >
+            <option value="">Selecione um método</option>
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+          </select>
 
           <label className="text-sm">Headers:</label>
           <textarea
