@@ -13,11 +13,11 @@ export function useHomeController() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [crawlerProgress, setCrawlerProgress] = useState<CrawlerProgress>({
-    message: "Pronto para iniciar",
+    message: "",
     status: "idle",
-    progress: 0, // Inicializar sempre com 0
   });
   const [wsInfo, setWsInfo] = useState<any>(null);
+  const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
 
   const wsServiceRef = useRef<CrawlerWebSocketService | null>(null);
 
@@ -26,21 +26,25 @@ export function useHomeController() {
       try {
         const info = await getCrawlerWsInfo();
         setWsInfo(info);
-        setCrawlerProgress((prev) => ({
-          ...prev,
-          message: info.info || "WebSocket disponível",
-        }));
+        addTerminalLog(`Sistema: ${info.info || "WebSocket disponível"}`);
       } catch (err) {
         console.error("Erro ao buscar info do WebSocket:", err);
-        setCrawlerProgress((prev) => ({
-          ...prev,
-          message: "Erro ao conectar com WebSocket",
-        }));
+        addTerminalLog("Sistema: Erro ao conectar com WebSocket");
       }
     };
 
     fetchWsInfo();
   }, []);
+
+  const addTerminalLog = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    setTerminalLogs((prev) => [...prev, logMessage]);
+  };
+
+  const clearTerminal = () => {
+    setTerminalLogs([]);
+  };
 
   useEffect(() => {
     return () => {
@@ -65,77 +69,58 @@ export function useHomeController() {
         progress: 0,
       });
 
+      addTerminalLog("Sistema: Iniciando conexão WebSocket...");
+
       wsServiceRef.current = new CrawlerWebSocketService(
         (data) => {
-          console.log("Dados recebidos do WebSocket:", data); // Debug
-
-          // Se for uma string simples
           if (typeof data === "string") {
+            addTerminalLog(`Crawler: ${data}`);
             setCrawlerProgress((prev) => ({
               ...prev,
               message: data,
               status: "running",
-              // Manter o progresso anterior se não vier novo
             }));
-          }
-          // Se for um objeto com dados estruturados
-          else if (typeof data === "object" && data !== null) {
-            setCrawlerProgress((prev) => {
-              const newProgress = { ...prev };
+          } else if (typeof data === "object" && data !== null) {
+            const message = data.message || JSON.stringify(data);
+            addTerminalLog(`Crawler: ${message}`);
 
-              // Atualizar mensagem se presente
-              if (data.message) {
-                newProgress.message = data.message;
-              }
-
-              // Atualizar progresso se presente
-              if (data.progress !== undefined && data.progress !== null) {
-                newProgress.progress = Math.min(
-                  100,
-                  Math.max(0, Number(data.progress))
-                );
-              }
-
-              // Atualizar status se presente
-              if (data.status) {
-                newProgress.status = data.status;
-              } else {
-                newProgress.status = "running";
-              }
-
-              console.log("Atualizando progresso:", newProgress); // Debug
-              return newProgress;
-            });
+            setCrawlerProgress((prev) => ({
+              ...prev,
+              message: message,
+              progress: data.percentage || data.progress || prev.progress,
+              status: "running",
+            }));
+          } else {
+            addTerminalLog(`Dados: ${JSON.stringify(data)}`);
           }
         },
         (error) => {
-          console.error("Erro WebSocket:", error);
+          addTerminalLog("Erro: Falha na conexão WebSocket");
           setCrawlerProgress({
             message: "Erro na conexão WebSocket",
             status: "error",
-            progress: 0,
           });
           setError("Erro na conexão com o servidor");
         },
         () => {
-          console.log("WebSocket fechado");
+          addTerminalLog("Sistema: Conexão WebSocket encerrada");
           setCrawlerProgress((prev) => ({
             ...prev,
             message:
               prev.status === "error" ? prev.message : "Crawler finalizado",
             status: prev.status === "error" ? "error" : "completed",
-            progress: prev.status === "error" ? prev.progress : 100,
           }));
         }
       );
 
       wsServiceRef.current.connect();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      const errorMsg = err instanceof Error ? err.message : "Erro desconhecido";
+      addTerminalLog(`Erro: ${errorMsg}`);
+      setError(errorMsg);
       setCrawlerProgress({
         message: "Erro ao iniciar crawler",
         status: "error",
-        progress: 0,
       });
     }
   };
@@ -146,10 +131,15 @@ export function useHomeController() {
       setLoading(true);
       setDialogOpen(true);
 
+      addTerminalLog("Sistema: Buscando pastas disponíveis...");
       const folderList = await listDataFolders();
       setFolders(folderList);
+      addTerminalLog(`Sistema: ${folderList.length} pasta(s) encontrada(s)`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao buscar pastas");
+      const errorMsg =
+        err instanceof Error ? err.message : "Erro ao buscar pastas";
+      addTerminalLog(`Erro: ${errorMsg}`);
+      setError(errorMsg);
       setDialogOpen(false);
     } finally {
       setLoading(false);
@@ -159,9 +149,14 @@ export function useHomeController() {
   const handleDownloadFolder = async (folderName: string) => {
     try {
       setError(null);
+      addTerminalLog(`Sistema: Iniciando download de "${folderName}"...`);
       await downloadZipFolder(folderName);
+      addTerminalLog(`Sistema: Download de "${folderName}" concluído!`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao baixar pasta");
+      const errorMsg =
+        err instanceof Error ? err.message : "Erro ao baixar pasta";
+      addTerminalLog(`Erro: ${errorMsg}`);
+      setError(errorMsg);
     }
   };
 
@@ -181,11 +176,14 @@ export function useHomeController() {
     error,
     crawlerProgress,
     wsInfo,
+    terminalLogs,
 
     handleStartCrawler,
     handleOpenDownloadDialog,
     handleDownloadFolder,
     handleCloseDialog,
     clearError,
+    clearTerminal,
+    addTerminalLog,
   };
 }

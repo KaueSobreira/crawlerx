@@ -10,11 +10,13 @@ const Home = () => {
     loading,
     error,
     crawlerProgress,
+    terminalLogs,
     handleStartCrawler,
     handleOpenDownloadDialog,
     handleDownloadFolder,
     handleCloseDialog,
     clearError,
+    clearTerminal,
   } = useHomeController();
 
   const getProgressValue = () => {
@@ -79,10 +81,21 @@ const Home = () => {
               </button>
             </div>
           )}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">Terminal de Logs</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearTerminal}
+              className="text-xs bg-gray-700 text-white border-gray-600 hover:bg-gray-600"
+            >
+              Limpar
+            </Button>
+          </div>
 
           <Textarea
-            className="bg-gray-800 text-white border-gray-600 min-h-[300px] resize-none"
-            value={crawlerProgress.message}
+            className="bg-gray-900 text-green-400 border-gray-600 min-h-[300px] resize-none font-mono text-sm"
+            value={terminalLogs.join("\n")}
             readOnly
           />
 
