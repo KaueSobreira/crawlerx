@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import type { ScriptDialogProps } from "@/model/script";
+import type { Script, ScriptDialogProps } from "@/model/script";
 
 const ScriptDialog: React.FC<ScriptDialogProps> = ({
   open,
@@ -63,16 +63,31 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
         throw new Error("Arquivo Python é obrigatório para novos scripts");
       }
 
-      const scriptData = {
-        ...form,
+      const scriptData: Script = {
+        name: form.name,
+        url: "",
+        path: "",
+        return_type: form.return_type,
+      };
+
+      const scriptWithId = {
+        ...scriptData,
         ...(initialData?.id ? { id: initialData.id } : {}),
       };
 
-      await onSubmit(scriptData, file);
+      await onSubmit(scriptWithId, file);
 
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      let errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
+
+      if (errorMessage.includes("result")) {
+        errorMessage =
+          'O arquivo Python deve conter uma variável chamada "result" com os dados que você deseja salvar. Exemplo: result = {"dados": "exemplo"}';
+      }
+
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +109,13 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-black">
+          <div className="p-3 bg-red-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800">
+              <strong>📝 Importante:</strong> O arquivo Python deve conter
+              result para ser aceito.
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-1">Nome:</label>
             <input
@@ -121,7 +143,7 @@ const ScriptDialog: React.FC<ScriptDialogProps> = ({
               {...(!initialData?.id ? { required: true } : {})}
             />
             {initialData?.id && (
-              <p className="text-xs font-bold text-gray-600 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 Deixe vazio para manter o arquivo atual
               </p>
             )}

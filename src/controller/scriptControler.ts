@@ -8,6 +8,7 @@ import {
   downloadScriptFile,
 } from "@/service/ScriptService";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export function useScriptListController() {
   const [scriptList, setScriptList] = useState<ScriptData[]>([]);
@@ -60,7 +61,7 @@ export function useScriptListController() {
 
 export const ScriptController = () => {
   const handleSave = async (
-    script: Script,
+    script: Script & { id?: number },
     file: File | null,
     editingScript: Partial<ScriptData> | null
   ): Promise<ScriptData> => {
@@ -88,6 +89,27 @@ export const ScriptController = () => {
       return savedScript;
     } catch (error) {
       console.error("Erro ao salvar script:", error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+
+      if (
+        errorMessage.includes("result") ||
+        errorMessage.includes("Result") ||
+        errorMessage.includes("'result'")
+      ) {
+        toast.error("Arquivo inválido", {
+          description:
+            "Para que seu arquivo Python seja aceito, ele precisa conter a variável ou saída chamada result. Edite os dados já incluídos e adicione o arquivo Python correspondente",
+          duration: 5000,
+        });
+      } else {
+        toast.error("Erro ao salvar script", {
+          description: errorMessage,
+          duration: 4000,
+        });
+      }
+
       throw error;
     }
   };

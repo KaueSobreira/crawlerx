@@ -3,6 +3,7 @@ import Header from "./components/header";
 import Home from "./views/home";
 import Api from "./views/api";
 import Script from "./views/script";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -15,6 +16,14 @@ function App() {
           <Route path="/script" element={<Script />} />
         </Routes>
       </main>
+
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        expand={true}
+        duration={4000}
+      />
     </Router>
   );
 }

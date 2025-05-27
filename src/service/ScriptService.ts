@@ -54,7 +54,7 @@ export async function uploadScriptFile(
     try {
       const errorData = JSON.parse(errorText);
       throw new Error(errorData.detail || "Erro ao fazer upload do arquivo");
-    } catch {
+    } catch (parseError) {
       throw new Error(errorText || "Erro ao fazer upload do arquivo");
     }
   }
@@ -77,7 +77,7 @@ export async function updateScriptFile(
     try {
       const errorData = JSON.parse(errorText);
       throw new Error(errorData.detail || "Erro ao atualizar arquivo");
-    } catch {
+    } catch (parseError) {
       throw new Error(errorText || "Erro ao atualizar arquivo");
     }
   }

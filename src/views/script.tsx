@@ -9,6 +9,7 @@ import ScriptDialog from "@/views/scriptDialog";
 import TableScript from "./table-script";
 import type { ScriptData } from "@/model/script";
 import { Input } from "@/components/ui/input";
+import { Toaster } from "sonner";
 
 const Script = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -99,7 +100,6 @@ const Script = () => {
         </Button>
       </div>
 
-      {/* Apenas mensagem de erro */}
       {error && (
         <div className="mx-4 mb-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded">
           {error}
@@ -150,6 +150,8 @@ const Script = () => {
         onSubmit={handleAddScript}
         initialData={editingScript}
       />
+
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 };
