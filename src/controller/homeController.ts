@@ -3,7 +3,6 @@ import type { FolderItem, CrawlerProgress } from "@/model/home";
 import {
   listDataFolders,
   downloadZipFolder,
-  getCrawlerWsInfo,
   CrawlerWebSocketService,
 } from "@/service/HomeService";
 
@@ -16,25 +15,10 @@ export function useHomeController() {
     message: "",
     status: "idle",
   });
-  const [wsInfo, setWsInfo] = useState<any>(null);
+  const [wsInfo] = useState<any>(null);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
 
   const wsServiceRef = useRef<CrawlerWebSocketService | null>(null);
-
-  useEffect(() => {
-    const fetchWsInfo = async () => {
-      try {
-        const info = await getCrawlerWsInfo();
-        setWsInfo(info);
-        addTerminalLog(`Sistema: ${info.info || "WebSocket disponível"}`);
-      } catch (err) {
-        console.error("Erro ao buscar info do WebSocket:", err);
-        addTerminalLog("Sistema: Erro ao conectar com WebSocket");
-      }
-    };
-
-    fetchWsInfo();
-  }, []);
 
   const addTerminalLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -56,6 +40,7 @@ export function useHomeController() {
 
   const handleStartCrawler = async () => {
     try {
+      clearTerminal();
       setError(null);
 
       if (wsServiceRef.current?.isConnected()) {
