@@ -7,7 +7,6 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
   open,
   onClose,
   onConfirm,
-  scriptName,
   isDeleting = false,
 }) => {
   if (!open) return null;
@@ -25,12 +24,7 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
         </div>
 
         <div className="mb-6">
-          <p className="text-gray-700 mb-2">
-            Tem certeza que deseja deletar o script:
-          </p>
-          <p className="font-medium text-black bg-gray-100 p-2 rounded">
-            "{scriptName}"
-          </p>
+          <p className="text-gray-700 mb-2">Tem certeza que deseja deletar?</p>
           <p className="text-sm text-red-600 mt-2">
             ⚠️ Esta ação não pode ser desfeita.
           </p>

@@ -18,3 +18,11 @@ export interface ApiDialogProps {
   onSubmit: (Api: Api) => void;
   initialData?: Partial<Api> | null;
 }
+
+export interface ConfirmDeleteApiDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  apiName: string;
+  isDeleting?: boolean;
+}

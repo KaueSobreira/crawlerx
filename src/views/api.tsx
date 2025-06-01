@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUpIcon, SearchIcon } from "lucide-react";
@@ -6,32 +7,70 @@ import ApiDialog from "@/views/apiDialog";
 import ListaApis from "@/views/table-api";
 import type { ApiData } from "@/model/api";
 import { Input } from "@/components/ui/input";
+import ConfirmDeleteDialog from "@/views/ConfirmDeleteDialog";
 
 const API = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [apiToDelete, setApiToDelete] = useState<ApiData | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingApi, setEditingApi] = useState<Partial<ApiData> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const { handleSave, handleDelete } = ApiController();
   const { apiList, handleSearch, refreshList } = useApiListController();
   const [searchInput, setSearchInput] = useState("");
 
   const handleAddApi = async (api: any) => {
     try {
+      setError(null);
+
       await handleSave(api, editingApi);
       setDialogOpen(false);
       setEditingApi(null);
       refreshList();
     } catch (error) {
       console.error("Erro ao salvar API:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao salvar API"
+      );
     }
   };
 
-  const handleDeleteApi = async (id: number) => {
+  const handleDeleteApi = async (api: ApiData) => {
+    setApiToDelete(api);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!apiToDelete) return;
+
     try {
-      await handleDelete(id);
+      setError(null);
+      setIsDeleting(true);
+
+      await handleDelete(apiToDelete.id);
       refreshList();
+
+      setDeleteDialogOpen(false);
+      setApiToDelete(null);
     } catch (error) {
       console.error("Erro ao excluir API:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao excluir API"
+      );
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setApiToDelete(null);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +99,19 @@ const API = () => {
           Adicionar API
         </Button>
       </div>
+
+      {error && (
+        <div className="mx-4 mb-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded">
+          {error}
+          <button
+            onClick={() => setError(null)}
+            className="float-right text-red-300 hover:text-red-100"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 pl-4 mb-4">
         <Input
           placeholder="Pesquise por ID ou Nome..."
@@ -92,9 +144,18 @@ const API = () => {
         onClose={() => {
           setDialogOpen(false);
           setEditingApi(null);
+          setError(null);
         }}
         onSubmit={handleAddApi}
         initialData={editingApi}
+      />
+
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        isDeleting={isDeleting}
+        scriptName={""}
       />
     </div>
   );
