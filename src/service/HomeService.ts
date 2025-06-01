@@ -57,24 +57,6 @@ export async function downloadZipFolder(folderName: string): Promise<void> {
   window.URL.revokeObjectURL(url);
 }
 
-export async function getCrawlerWsInfo(): Promise<any> {
-  const response = await fetch(`${baseUrl}/crawler/ws-info`);
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    try {
-      const errorData = JSON.parse(errorText);
-      throw new Error(
-        errorData.detail || "Erro ao buscar informações do WebSocket"
-      );
-    } catch {
-      throw new Error(errorText || "Erro ao buscar informações do WebSocket");
-    }
-  }
-
-  return await response.json();
-}
-
 export class CrawlerWebSocketService {
   private ws: WebSocket | null = null;
   private onMessage: (data: any) => void;
