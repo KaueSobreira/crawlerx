@@ -13,7 +13,7 @@ import { Download, Pencil, Trash } from "lucide-react";
 interface Props {
   data: ScriptData[];
   onEdit: (script: ScriptData) => void;
-  onDelete: (id: number) => void;
+  onDelete: (script: ScriptData) => void;
   onDownload: (script: ScriptData) => void;
 }
 
@@ -59,7 +59,7 @@ const TableScript = ({ data, onEdit, onDelete, onDownload }: Props) => {
                   </Button>
                   <Button
                     className="hover:bg-red-600"
-                    onClick={() => onDelete(script.id)}
+                    onClick={() => onDelete(script)}
                     title="Deletar script"
                   >
                     <Trash />

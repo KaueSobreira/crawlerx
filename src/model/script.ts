@@ -17,3 +17,11 @@ export interface ScriptDialogProps {
   onSubmit: (script: Script & { id?: number }, file: File | null) => void;
   initialData?: Partial<ScriptData> | null;
 }
+
+export interface ConfirmDeleteDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  scriptName: string;
+  isDeleting?: boolean;
+}

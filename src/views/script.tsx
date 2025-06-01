@@ -6,13 +6,16 @@ import {
   useScriptListController,
 } from "@/controller/scriptControler";
 import ScriptDialog from "@/views/scriptDialog";
+import ConfirmDeleteDialog from "@/views/ConfirmDeleteDialog";
 import TableScript from "./table-script";
 import type { ScriptData } from "@/model/script";
 import { Input } from "@/components/ui/input";
-import { Toaster } from "sonner";
 
 const Script = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [scriptToDelete, setScriptToDelete] = useState<ScriptData | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingScript, setEditingScript] =
     useState<Partial<ScriptData> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,13 +44,23 @@ const Script = () => {
     }
   };
 
-  const handleDeleteScript = async (id: number) => {
+  const handleDeleteScript = async (script: ScriptData) => {
+    setScriptToDelete(script);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!scriptToDelete) return;
+
     try {
       setError(null);
+      setIsDeleting(true);
 
-      await handleDelete(id);
-
+      await handleDelete(scriptToDelete.id);
       await reloadScripts();
+
+      setDeleteDialogOpen(false);
+      setScriptToDelete(null);
     } catch (error) {
       console.error("Erro ao deletar Script:", error);
       setError(
@@ -55,7 +68,14 @@ const Script = () => {
           ? error.message
           : "Erro desconhecido ao deletar script"
       );
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setScriptToDelete(null);
   };
 
   const handleDownloadScript = async (script: ScriptData) => {
@@ -151,7 +171,13 @@ const Script = () => {
         initialData={editingScript}
       />
 
-      <Toaster position="top-right" richColors closeButton />
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        scriptName={scriptToDelete?.name || ""}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };
