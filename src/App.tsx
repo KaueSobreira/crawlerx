@@ -4,6 +4,7 @@ import Home from "./views/home";
 import Api from "./views/api";
 import Script from "./views/script";
 import { Toaster } from "sonner";
+import LogDialog from "./views/LogDialog";
 
 function App() {
   return (
@@ -16,6 +17,8 @@ function App() {
           <Route path="/script" element={<Script />} />
         </Routes>
       </main>
+
+      <LogDialog />
 
       <Toaster
         position="top-right"
