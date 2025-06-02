@@ -13,21 +13,7 @@ export default function LogDialog() {
     setLoading(true);
     try {
       const data = await fetchLogs();
-
-      const sorted = data.sort((a, b) => {
-        const dateA = new Date(a.timestamp);
-        const dateB = new Date(b.timestamp);
-
-        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-          console.warn("Timestamp inválido encontrado:", {
-            a: a.timestamp,
-            b: b.timestamp,
-          });
-          return 0;
-        }
-
-        return dateB.getTime() - dateA.getTime();
-      });
+      const sorted = data.sort((a, b) => b.id - a.id);
       setLogs(sorted);
     } catch (error) {
       console.error("Erro ao buscar logs:", error);
